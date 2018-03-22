@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/tx
+						http://www.springframework.org/schema/tx/spring-tx.xsd 
+				      	http://www.springframework.org/schema/context  
+				       	http://www.springframework.org/schema/context/spring-context.xsd
+				       	http://www.springframework.org/schema/aop
+				       	http://www.springframework.org/schema/aop/spring-aop.xsd
+				       	http://www.springframework.org/schema/mvc  
+    					http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+
+	<!-- 配置数据源 -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" 
+	    p:driverClassName="org.postgresql.Driver"
+	    p:url="jdbc:postgresql://10.59.2.118:5432/cqc_db"
+	    p:username="postgres"
+	    p:password="123456">
+	</bean>
+	
+	<!-- 配置SqlSessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	    <!-- 指定sqlSessionFactory的数据源 -->
+	    <property name="dataSource" ref="dataSource" />
+	    <!-- mybatis配置文件路径 -->
+	    <property name="configLocation" value="classpath:mybatis-config.xml"></property>
+	    <!-- 映射文件路径 -->
+	    <property name="mapperLocations">
+	        <list>
+	            <value>classpath*:com/etc/mapper/impl/*.xml</value>
+	        </list>
+	    </property>
+	</bean>
+	
+	<!-- 配置一个Mapper的bean 整合Mybatis-->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+	    <property name="basePackage" value="com.etc"></property>
+	    <property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+	
+	<!-- 事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager" p:dataSource-ref="dataSource" />
+	<!-- 事务配置 -->
+	<tx:advice transaction-manager="transactionManager" id="txAdivce">
+	    <tx:attributes>
+	        <tx:method name="*" rollback-for="RuntimException"/>
+	    </tx:attributes>
+	</tx:advice>
+
+	
+
+</beans>
